@@ -1,4 +1,4 @@
-from src.main import db
+from src.app import db
 from strenum import StrEnum
 from sqlalchemy import func
 from sqlalchemy import DateTime, Enum
@@ -21,3 +21,30 @@ class Article(db.Model):
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
+
+    def to_json(self):
+        return {
+            'title': self.title,
+            'text': self.text,
+            'date': self.date,
+            'userId': self.userId,
+            'state': self.state
+        }
+
+    @classmethod
+    def get_by_id(cls, article_id):
+        return cls.query.filter_by(id=article_id).first()
+
+    @classmethod
+    def get_all(cls):
+        return {'articles': [cls.to_json(article) for article in Article.query.all()]}
+
+    @classmethod
+    def delete_by_id(cls, article_id):
+        try:
+            cls.query.filter_by(id=article_id).delete()
+            db.session.commit()
+
+            return {"message": f"Article {article_id} deleted"}
+        except:
+            return {"message": "Something went wrong"}
