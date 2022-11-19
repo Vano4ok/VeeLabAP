@@ -1,7 +1,8 @@
 from flask import Flask
-from waitress import serve
+#from waitress import serve
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_httpauth import HTTPBasicAuth
 from os import getenv
 from dotenv import load_dotenv
 
@@ -13,11 +14,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+auth = HTTPBasicAuth()
 
 import src.model.user
 import src.model.article
+import src.model.role
+import  src.model.users_roles
 import src.route.users
 import src.route.articles
+
 
 
 @app.before_request

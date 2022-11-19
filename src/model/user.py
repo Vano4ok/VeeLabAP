@@ -12,6 +12,8 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
     articles = db.relationship('Article', backref='user', lazy=True)
+    roles = db.relationship('Role', secondary='users_roles',
+                            backref=db.backref('user', lazy='dynamic'))
 
     def save_to_db(self):
         db.session.add(self)
@@ -28,6 +30,10 @@ class User(db.Model):
     @classmethod
     def get_by_id(cls, id):
         return cls.query.filter_by(id=id).first()
+
+    @classmethod
+    def get_by_username_or_id(cls, identifier):
+        return User.query.filter((User.email == identifier) | (User.username == identifier)).first()
 
     @classmethod
     def delete_by_id(cls, user_id):

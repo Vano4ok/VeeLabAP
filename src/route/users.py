@@ -1,5 +1,6 @@
-from src.app import app
+from src.app import app, auth
 from src.model.user import User
+from src.model.role import Role
 from flask_restful import reqparse
 
 from src.utils.exception_wrapper import handle_error_format, handle_server_exception
@@ -41,6 +42,9 @@ def create_user():
         password=User.generate_hash(data['password'])
     )
 
+    role = Role.get_by_name('user')
+    user.roles.append(role)
+
     try:
         user.save_to_db()
 
@@ -59,7 +63,8 @@ def get_user_by_id(user_id: int):
 
 
 @app.route('/user/<userId>', methods=['PUT'])
-@handle_server_exception
+@auth.login_required
+#@handle_server_exception
 def update_user(user_id: int):
     parser = reqparse.RequestParser()
 
@@ -90,6 +95,7 @@ def update_user(user_id: int):
 
 
 @app.route('/user/<userId>', methods=['DELETE'])
+@auth.login_required(role=['admin'])
 @handle_server_exception
 def delete_user_by_id(user_id: int):
     return User.delete_by_id(user_id)
