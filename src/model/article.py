@@ -3,6 +3,8 @@ from strenum import StrEnum
 from sqlalchemy import func
 from sqlalchemy import DateTime, Enum
 
+from src.utils.exception_wrapper import handle_error_format
+
 
 class State(StrEnum):
     NEW = 'New'
@@ -41,10 +43,15 @@ class Article(db.Model):
 
     @classmethod
     def delete_by_id(cls, article_id):
-        try:
-            cls.query.filter_by(id=article_id).delete()
-            db.session.commit()
+        article = Article.get_by_id(article_id)
 
-            return {"message": f"Article {article_id} deleted"}
-        except:
-            return {"message": "Something went wrong"}
+        if not article:
+            return handle_error_format('Article with such id does not exist.',
+                                       'Field \'articleId\' in path parameters.'), 404
+
+        article_json = article.to_json()
+
+        cls.query.filter_by(id=article_id).delete()
+        db.session.commit()
+
+        return article_json

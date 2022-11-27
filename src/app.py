@@ -16,17 +16,12 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 auth = HTTPBasicAuth()
 
-import src.model.user
-import src.model.article
-import src.model.role
-import  src.model.users_roles
-import src.route.users
-import src.route.articles
-
-
 
 @app.before_request
 def create_tables():
     db.create_all()
 
-# serve(app)
+
+if __name__ == '__main__':
+    print("hj")
+

@@ -6,7 +6,7 @@ from flask_restful import reqparse
 from src.utils.exception_wrapper import handle_error_format
 
 
-@app.route('/article/create', methods=['POST'])
+@app.route('/articles', methods=['POST'])
 def create_article():
     parser = reqparse.RequestParser()
 
@@ -39,12 +39,12 @@ def create_article():
         return {'message': 'Something went wrong'}, 500
 
 
-@app.route('/article/<article_id>', methods=['GET'])
+@app.route('/articles/<article_id>', methods=['GET'])
 def get_article_by_id(article_id: int):
     article = Article.get_by_id(article_id)
     if not article:
         return handle_error_format('Article with such id does not exists.',
-                                   'Field \'article_id\' in the request body.'), 400
+                                   'Field \'article_id\' in the request body.'), 404
 
     return article.to_json()
 
@@ -54,7 +54,7 @@ def get_articles():
     return Article.get_all()
 
 
-@app.route("/article/<article_id>", methods=['PUT'])
+@app.route("/articles/<article_id>", methods=['PUT'])
 def update_article(article_id: int):
 
     parser = reqparse.RequestParser()
@@ -78,8 +78,9 @@ def update_article(article_id: int):
         return {'error': f'Article with id={article_id} does not exist!'}, 404
 
 
-@app.route('/article/<article_id>', methods=['DELETE'])
+@app.route('/articles/<article_id>', methods=['DELETE'])
 def delete_article(article_id: int):
+
     try:
         Article.delete_by_id(article_id)
         return {'message': 'Article were deleted'}

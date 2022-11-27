@@ -53,7 +53,7 @@ def create_user():
         return {'message': 'Something went wrong'}, 500
 
 
-@app.route('/user/<userId>', methods=['GET'])
+@app.route('/user/<user_id>', methods=['GET'])
 def get_user_by_id(user_id: int):
     user = User.get_by_id(user_id)
     if not user:
@@ -62,20 +62,20 @@ def get_user_by_id(user_id: int):
     return user.to_json()
 
 
-@app.route('/user/<userId>', methods=['PUT'])
-@auth.login_required
-#@handle_server_exception
+@app.route('/user/<user_id>', methods=['PUT'])
+@auth.login_required(role=['admin'])
+@handle_server_exception
 def update_user(user_id: int):
     parser = reqparse.RequestParser()
 
     parser.add_argument('username', help='username cannot be blank')
-    parser.add_argument('first_name', help='fullname cannot be blank')
-    parser.add_argument('last_name', help='fullname cannot be blank')
+    parser.add_argument('firstName', help='firstName cannot be blank')
+    parser.add_argument('lastName', help='lastName cannot be blank')
 
     data = parser.parse_args()
     username = data['username']
-    first_name = data['first_name']
-    last_name = data['last_name']
+    first_name = data['firstName']
+    last_name = data['lastName']
 
     if User.get_by_username(username):
         return handle_error_format('User with such username already exists.',
@@ -93,9 +93,48 @@ def update_user(user_id: int):
 
     return User.to_json(user)
 
+@app.route('/user', methods=['PUT'])
+@auth.login_required(role=['user', 'admin'])
+@handle_server_exception
+def update_authorized_user():
+    parser = reqparse.RequestParser()
 
-@app.route('/user/<userId>', methods=['DELETE'])
+    parser.add_argument('username', help='username cannot be blank')
+    parser.add_argument('firstName', help='firstName cannot be blank')
+    parser.add_argument('lastName', help='lastName cannot be blank')
+
+    data = parser.parse_args()
+    username = data['username']
+    first_name = data['firstName']
+    last_name = data['lastName']
+
+    if User.get_by_username(username):
+        return handle_error_format('User with such username already exists.',
+                                   'Field \'username\' in the request body.'), 400
+
+    username = auth.current_user()
+    user = User.get_by_username(username)
+
+    if not user:
+        return handle_error_format('User with such id does not exist.',
+                                   'Field \'userId\' in path parameters.'), 404
+
+    user.username = username
+    user.first_name = first_name
+    user.last_name = last_name
+    user.save_to_db()
+
+    return User.to_json(user)
+
+@app.route('/user/<user_id>', methods=['DELETE'])
 @auth.login_required(role=['admin'])
 @handle_server_exception
 def delete_user_by_id(user_id: int):
-    return User.delete_by_id(user_id)
+    return User.delete_by_identifier(user_id)
+
+@app.route('/user', methods=['DELETE'])
+@auth.login_required(role=['user', 'admin'])
+@handle_server_exception
+def delete_authorized_user():
+    username = auth.current_user()
+    return User.delete_by_identifier(username)

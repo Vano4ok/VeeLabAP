@@ -93,6 +93,14 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "undecorated"
+version = "0.3.0"
+description = "Undecorate python functions, methods or classes"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "Werkzeug"
 version = "2.2.2"
 description = "The comprehensive WSGI web application library."
@@ -121,7 +129,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "abaf04d4c771b2eed981a297adaba4cb357fb9199e9b7a079905f88edca5e8cc"
+content-hash = "adf4dca1a212a9d37ef25d9398cca41f37a28623884d5e18167eaff5b1cda95f"
 
 [metadata.files]
 click = [
@@ -193,6 +201,11 @@ MarkupSafe = [
 typing-extensions = [
     {file = "typing_extensions-4.3.0-py3-none-any.whl", hash = "sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02"},
     {file = "typing_extensions-4.3.0.tar.gz", hash = "sha256:e6d2677a32f47fc7eb2795db1dd15c1f34eff616bcaf2cfb5e997f854fa1c4a6"},
+]
+undecorated = [
+    {file = "undecorated-0.3.0-py2-none-any.whl", hash = "sha256:c627ab442be70240f86bc54f57efae1194a242ee8f051befaf7760f51fb44f22"},
+    {file = "undecorated-0.3.0-py3-none-any.whl", hash = "sha256:d668d6c076f05b0bdf3bc399af9541f8b9afa4fad653ddec4afa2eca606162f9"},
+    {file = "undecorated-0.3.0.tar.gz", hash = "sha256:83eca0a85e6e62ac8bc6bf938c8a70003e58ef084932d5930d7699e5759a3a3e"},
 ]
 Werkzeug = [
     {file = "Werkzeug-2.2.2-py3-none-any.whl", hash = "sha256:f979ab81f58d7318e064e99c4506445d60135ac5cd2e177a2de0089bfd4c9bd5"},

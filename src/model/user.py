@@ -2,6 +2,7 @@ from src.app import db
 from passlib.hash import pbkdf2_sha256 as sha256
 
 from src.model.article import Article
+from src.utils.exception_wrapper import handle_error_format
 
 
 class User(db.Model):
@@ -35,34 +36,15 @@ class User(db.Model):
     def get_by_username_or_id(cls, identifier):
         return User.query.filter((User.email == identifier) | (User.username == identifier)).first()
 
-    @classmethod
-    def delete_by_id(cls, user_id):
-        try:
-            user = User.get_by_id(user_id)
-
-            for article in user.articles:
-                Article.delete_note_by_id(article.id)
-
-            user_json = User.to_json(user)
-            User.query.filter_by(id=user_id).delete()
-            db.session.commit()
-            return user_json
-        except:
-            return {'message': 'User with such id does not exist.'}, 404
-
-    def to_json(user):
+    def to_json(self):
         return {
-            'id': user.id,
-            'username': user.username,
-            'firstName': user.firstName,
-            'lastName': user.lastName,
-            'email': user.email,
-            'password': user.password
+            'id': self.id,
+            'username': self.username,
+            'firstName': self.firstName,
+            'lastName': self.lastName,
+            'email': self.email,
+            'roles': [role.name for role in self.roles],
         }
-
-    @classmethod
-    def return_all(cls):
-        return {'users': [user.to_json() for user in User.query.all()]}
 
     @staticmethod
     def generate_hash(password):
@@ -71,3 +53,25 @@ class User(db.Model):
     @staticmethod
     def verify_hash(password, hash_):
         return sha256.verify(password, hash_)
+
+    @classmethod
+    def delete_by_identifier(cls, identifier):
+        try:
+            user = User.get_by_username_or_id(identifier)
+
+            if not user:
+                return handle_error_format('User with such id/username does not exist.',
+                                           'Field \'userId/username\' in path parameters.'), 404
+
+            if not user.articles:
+                for article in user.articles:
+                    Article.delete_note_by_id(article.id)
+
+            user_json = User.to_json(user)
+            User.query.filter_by(id=user.id).delete()
+            db.session.commit()
+            return user_json
+        except AttributeError:
+            return handle_error_format('User with such id/username does not exist.',
+                                       'Field \'userId/username\' in path parameters.'), 404
+
